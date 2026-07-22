@@ -1,0 +1,14 @@
+# Environment Variables & Secrets (CRITICAL)
+.env
+*.env
+
+# Virtual Environment (CRITICAL)
+env/
+venv/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# IDE Settings
+.vscode/
