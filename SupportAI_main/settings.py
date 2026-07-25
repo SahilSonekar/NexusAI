@@ -111,3 +111,8 @@ STATIC_URL = 'static/'
 LOGIN_REDIRECT_URL = '/orders/'
 LOGOUT_REDIRECT_URL = '/login/'
 LOGIN_URL = '/login/'
+
+
+# Gemini API Configuration
+GEMINI_API_KEY = config("GEMINI_API_KEY", default="")
+GEMINI_MODEL = config("GEMINI_MODEL", default="gemini-3.6-flash")
