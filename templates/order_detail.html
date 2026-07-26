@@ -364,6 +364,26 @@
         </div>
 
         <script>
+
+            function showTyping() {
+                const message = document.getElementById("chat-messages")
+                message.insertAdjacentHTML("beforeend", `
+                <div id="typing-indicator" class="agent-message p-2" style="font-size:13px;max-width:85%;">
+                Typing...
+                </div>
+            `)
+                message.scrollTop = message.scrollHeight;
+            }
+
+
+            function hideTyping() {
+                const indicator = document.getElementById("typing-indicator");
+                if (indicator) {
+                    indicator.remove();
+                }
+            }
+
+
             function showChat() {
                 document.getElementById("help-card").style.display = "none";
 

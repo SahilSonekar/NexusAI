@@ -3,7 +3,7 @@ from django.utils import timezone
 from .tracking_data import DELIVERY_DATA
 
 
-def get_order_details(order_id):
+def get_order_details(order_id: int):
     try:
         order = Order.objects.get(id=order_id)
         return {
@@ -21,7 +21,7 @@ def get_order_details(order_id):
         return {"error": f"Order #{order_id} not found."}
 
 
-def get_refund_history(user_id):
+def get_refund_history(user_id: int):
     refunds = RefundRequest.objects.filter(user_id=user_id).order_by("-created_at")
 
     history = []
@@ -39,7 +39,7 @@ def get_refund_history(user_id):
     }
 
 
-def check_delivery_status(tracking_number, carrier):
+def check_delivery_status(tracking_number: str, carrier: str):
     default_response = {
         "status": "Unknown",
         "last_location": "Tracking info unavailable",
