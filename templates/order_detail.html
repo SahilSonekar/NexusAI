@@ -202,13 +202,12 @@
 
         #chat-box {
             height: 500px;
-            display: flex;
+            display: none; /* hidden by default */
             flex-direction: column;
-            opacity: 0;
         }
 
         #chat-box.visible {
-            opacity: 1;
+            display: flex; /* show chat box cleanly */
         }
 
         .chat-messages {
@@ -313,16 +312,16 @@
             </div>
 
             <div class="col-md-4">
-                <!-- Help card - visible by default -->
-                <div class="help-card" id="help-card">
+                <!-- Help card -->
+                <div class="help-card" id="help-card" {% if previous_messages %}style="display: none;"{% endif %}>
                     <div style="font-size:32px;">💬</div>
                     <h6>Need help with this order?</h6>
                     <p>Our AI support agent can help you with delivery issues, refunds, or any other concerns.</p>
                     <button onclick="showChat()" class="btn-help">Get Help</button>
                 </div>
 
-                <!-- Chat box - hidden by default -->
-                <div id="chat-box" class="card">
+                <!-- Chat box -->
+                <div id="chat-box" class="card {% if previous_messages %}visible{% endif %}">
                     <!-- Header -->
                     <div class="card-header d-flex align-items-center gap-2">
                         <div style="width: 8px;height: 8px; border-radius: 50%; background-color: green;"></div>
@@ -332,7 +331,6 @@
                     <!-- Chat area -->
                     <div id="chat-messages" class="chat-messages p-3 d-flex flex-column gap-2">
                         {% if conversation %}
-                        <!-- print the previous messages -->
                         {% for msg in previous_messages %}
                         {% if msg.role == 'user' %}
                         <div class="customer-message p-2 px-3" style="font-size: 13px;max-width: 85%;">
@@ -346,7 +344,7 @@
                         {% endfor %}
                         {% else %}
                         <div class="agent-message p-2 px-3" style="font-size: 13px; max-width: 85%;">
-                            Hi {{ request.user.first_name }}, I'm Maya, How can I help you with your order today?
+                            Hi {{ request.user.first_name }}, I'm Maya. How can I help you with your order today?
                         </div>
                         {% endif %}
                     </div>
@@ -364,17 +362,21 @@
         </div>
 
         <script>
+            // Scroll chat to bottom on page load
+            window.addEventListener("DOMContentLoaded", () => {
+                const messages = document.getElementById("chat-messages");
+                messages.scrollTop = messages.scrollHeight;
+            });
 
             function showTyping() {
-                const message = document.getElementById("chat-messages")
+                const message = document.getElementById("chat-messages");
                 message.insertAdjacentHTML("beforeend", `
-                <div id="typing-indicator" class="agent-message p-2" style="font-size:13px;max-width:85%;">
-                Typing...
+                <div id="typing-indicator" class="agent-message p-2 px-3 text-muted fst-italic" style="font-size:12px; width: fit-content;">
+                    Typing...
                 </div>
-            `)
+            `);
                 message.scrollTop = message.scrollHeight;
             }
-
 
             function hideTyping() {
                 const indicator = document.getElementById("typing-indicator");
@@ -383,13 +385,10 @@
                 }
             }
 
-
             function showChat() {
                 document.getElementById("help-card").style.display = "none";
-
                 const chatBox = document.getElementById("chat-box");
-
-                chatBox.classList.add("visible")
+                chatBox.classList.add("visible");
             }
 
             function appendMessage(text, type) {
@@ -410,7 +409,6 @@
                 const input = document.getElementById("chat-input");
                 const message = input.value.trim();
 
-                // don't send empty message
                 if (!message) return;
 
                 appendMessage(message, "customer");
@@ -418,9 +416,8 @@
                 input.value = "";
                 input.disabled = true;
 
-                const typingTimeout = setTimeout(() => showTyping(), 1000); // show typing after 2 seconds
+                const typingTimeout = setTimeout(() => showTyping(), 500);
 
-                // send message to django view
                 try {
                     const response = await fetch("/support/chat/{{order.id}}/", {
                         method: "POST",
@@ -431,27 +428,24 @@
                         body: JSON.stringify({ message: message })
                     });
 
-                    const data = await response.json()
-                    hideTyping();
-                    appendMessage(data.reply, "agent");
-                    input.disabled = false;
-                    input.focus();
-                } catch (error) {
-                    console.error("Error: ", error)
-                    appendMessage("Sorry, something went wrong", "agent")
-                    input.disabled = false;
-                    input.focus();
-                } finally {
+                    const data = await response.json();
                     clearTimeout(typingTimeout);
                     hideTyping();
-
+                    appendMessage(data.reply, "agent");
+                } catch (error) {
+                    console.error("Error: ", error);
+                    clearTimeout(typingTimeout);
+                    hideTyping();
+                    appendMessage("Sorry, something went wrong.", "agent");
+                } finally {
+                    input.disabled = false;
+                    input.focus();
                 }
             }
 
-            // send message on Enter key
             document.getElementById("chat-input").addEventListener("keydown", function (e) {
                 if (e.key === "Enter") sendMessage();
-            })
+            });
         </script>
 
 </body>
