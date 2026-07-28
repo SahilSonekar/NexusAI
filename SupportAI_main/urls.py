@@ -17,8 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
+from django.shortcuts import redirect  # <-- Added import
 
 urlpatterns = [
+    # Redirect base URL (http://127.0.0.1:8000/) directly to /login/
+    path('', lambda request: redirect('login')),
+
     path('admin/', admin.site.urls),
 
     path('login/', auth_views.LoginView.as_view(template_name="login.html"), name="login"),
