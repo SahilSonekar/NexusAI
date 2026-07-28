@@ -245,15 +245,6 @@ Sensitive information such as API keys and database credentials are never hardco
 
 ---
 
-## 📌 TODO / Improvements
-
-* Add automated tests
-* Set up CI/CD (GitHub Actions)
-* Document API with Swagger or Postman
-* Add role-based routing on the frontend
-* Add a global error boundary
-
----
 
 ## 👨‍💻 Author
 
